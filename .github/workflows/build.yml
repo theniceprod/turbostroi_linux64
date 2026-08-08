@@ -40,14 +40,15 @@ jobs:
             echo -e '#include "tier0/platform.h"\nbool CheckMMX() { return true; }\nbool CheckSSE() { return true; }\nbool CheckSSE2() { return true; }\nbool Check3DNow() { return false; }\nbool CheckCMOV() { return true; }' > "$f"
           done
 
-      - name: Download and setup GMod x64 binaries
+      - name: Download GMod x64 binaries
         run: |
           mkdir -p /tmp/steamcmd /tmp/gmod
           curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - -C /tmp/steamcmd
-          /tmp/steamcmd/steamcmd.sh +force_install_dir /tmp/gmod +login anonymous +app_update 4020 -beta x86-64 validate +quit || true
-          sudo cp /tmp/gmod/bin/linux64/*.so /usr/lib/x86_64-linux-gnu/
-          sudo cp /usr/lib/x86_64-linux-gnu/tier0.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-          sudo cp /usr/lib/x86_64-linux-gnu/vstdlib.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
+          /tmp/steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /tmp/gmod +login anonymous +app_update 4020 -beta x86-64 validate +quit || true
+          sudo cp /tmp/gmod/bin/linux64/tier0.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
+          sudo cp /tmp/gmod/bin/linux64/vstdlib.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
+          sudo cp /tmp/gmod/bin/linux64/tier0.so /usr/lib/x86_64-linux-gnu/libtier0.so
+          sudo cp /tmp/gmod/bin/linux64/vstdlib.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
             
       - name: Build LuaJIT with PIC
         run: |
