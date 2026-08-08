@@ -70,8 +70,8 @@ jobs:
           make -C "$(dirname "$MF")" config=release_x86_64 CXXFLAGS="$CXXFLAGS -fpermissive"
 
       - name: Upload Artifact
-          uses: actions/upload-artifact@v4
-          with:
+        uses: actions/upload-artifact@v4
+        with:
             name: gmsv_turbostroi_linux64
             path: |
                 **/*.so
