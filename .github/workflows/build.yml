@@ -44,15 +44,15 @@ jobs:
         uses: actions/checkout@v4
         with:
             repository: garrysmod-addons/garrysmod_common
-            path: /tmp/gmcommon
+            path: gmcommon_tmp
             lfs: true
 
       - name: Copy Binaries
         run: |
-            sudo cp /tmp/gmcommon/bin/linux64/tier0.so /usr/lib/libtier0.so
-            sudo cp /tmp/gmcommon/bin/linux64/vstdlib.so /usr/lib/libvstdlib.so
-            sudo cp /tmp/gmcommon/bin/linux64/tier0.so /usr/lib/libtier0_srv.so
-            sudo cp /tmp/gmcommon/bin/linux64/vstdlib.so /usr/lib/libvstdlib_srv.so
+            sudo cp gmcommon_tmp/bin/linux64/tier0.so /usr/lib/libtier0.so
+            sudo cp gmcommon_tmp/bin/linux64/vstdlib.so /usr/lib/libvstdlib.so
+            sudo cp gmcommon_tmp/bin/linux64/tier0.so /usr/lib/libtier0_srv.so
+            sudo cp gmcommon_tmp/bin/linux64/vstdlib.so /usr/lib/libvstdlib_srv.so
           
       - name: Fetch LFS and Setup Binaries
         run: |
