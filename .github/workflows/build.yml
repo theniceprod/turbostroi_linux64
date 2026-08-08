@@ -40,20 +40,13 @@ jobs:
             echo -e '#include "tier0/platform.h"\nbool CheckMMX() { return true; }\nbool CheckSSE() { return true; }\nbool CheckSSE2() { return true; }\nbool Check3DNow() { return false; }\nbool CheckCMOV() { return true; }' > "$f"
           done
 
-      - name: Download GMod x64 binaries
+      - name: Create Stub Binaries
         run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update && sudo apt-get install -y lib32gcc-s1 lib32stdc++6
-          mkdir -p /tmp/steamcmd /tmp/gmod
-          curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - -C /tmp/steamcmd
-          /tmp/steamcmd/steamcmd.sh +quit
-          /tmp/steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /tmp/gmod +login anonymous +app_update 221880 validate +quit
-          TIER0=$(find /tmp/gmod -name "*tier0*.so" | head -n 1)
-          VSTDLIB=$(find /tmp/gmod -name "*vstdlib*.so" | head -n 1)
-          sudo cp "$TIER0" /usr/lib/x86_64-linux-gnu/libtier0.so
-          sudo cp "$TIER0" /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-          sudo cp "$VSTDLIB" /usr/lib/x86_64-linux-gnu/libvstdlib.so
-          sudo cp "$VSTDLIB" /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
+          echo "void ConMsg(){}" > stub.c
+          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libtier0.so
+          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libtier0_srv.so
+          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libvstdlib.so
+          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
             
       - name: Build LuaJIT with PIC
         run: |
