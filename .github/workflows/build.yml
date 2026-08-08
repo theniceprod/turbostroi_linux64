@@ -55,13 +55,12 @@ jobs:
           
       - name: Setup x64 Binaries
         run: |
-            mkdir -p external/bin64 && cd external/bin64
-            find ../garrysmod_common -name "tier0*.so" -exec cp {} tier0.so \; -quit
-            find ../garrysmod_common -name "vstdlib*.so" -exec cp {} vstdlib.so \; -quit
-            ln -sf tier0.so libtier0.so
-            ln -sf vstdlib.so libvstdlib.so
-            ln -sf tier0.so libtier0_srv.so
-            ln -sf vstdlib.so libvstdlib_srv.so
+            TIER0=$(find external/garrysmod_common -name "tier0*.so" | head -n 1)
+            VSTDLIB=$(find external/garrysmod_common -name "vstdlib*.so" | head -n 1)
+            sudo cp "$TIER0" /usr/lib/libtier0.so
+            sudo cp "$VSTDLIB" /usr/lib/libvstdlib.so
+            sudo cp "$TIER0" /usr/lib/libtier0_srv.so
+            sudo cp "$VSTDLIB" /usr/lib/libvstdlib_srv.so
           
       - name: Generate and Build
         run: |
