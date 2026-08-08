@@ -40,18 +40,19 @@ jobs:
             echo -e '#include "tier0/platform.h"\nbool CheckMMX() { return true; }\nbool CheckSSE() { return true; }\nbool CheckSSE2() { return true; }\nbool Check3DNow() { return false; }\nbool CheckCMOV() { return true; }' > "$f"
           done
           
-      - name: Fix tier0/vstdlib symlinks
+      - name: Checkout gmcommon
+        uses: actions/checkout@v4
+        with:
+            repository: garrysmod-addons/garrysmod_common
+            path: /tmp/gmcommon
+            lfs: true
+
+      - name: Copy Binaries
         run: |
-          TARGET_DIR="external/garrysmod_common/sourcesdk-minimal/lib/public/linux64"
-          mkdir -p "$TARGET_DIR"
-          TIER0=$(find external/garrysmod_common -name "tier0.so" -o -name "tier0_srv.so" | head -n 1)
-          VSTDLIB=$(find external/garrysmod_common -name "vstdlib.so" -o -name "vstdlib_srv.so" | head -n 1)
-          if [ -n "$TIER0" ]; then
-              cp "$TIER0" "$TARGET_DIR/libtier0.so"
-          fi
-          if [ -n "$VSTDLIB" ]; then
-              cp "$VSTDLIB" "$TARGET_DIR/libvstdlib.so"
-          fi
+            sudo cp /tmp/gmcommon/bin/linux64/tier0.so /usr/lib/libtier0.so
+            sudo cp /tmp/gmcommon/bin/linux64/vstdlib.so /usr/lib/libvstdlib.so
+            sudo cp /tmp/gmcommon/bin/linux64/tier0.so /usr/lib/libtier0_srv.so
+            sudo cp /tmp/gmcommon/bin/linux64/vstdlib.so /usr/lib/libvstdlib_srv.so
           
       - name: Fetch LFS and Setup Binaries
         run: |
