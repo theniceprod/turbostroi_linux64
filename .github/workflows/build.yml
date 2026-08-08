@@ -42,8 +42,9 @@ jobs:
 
       - name: Download GMod x64 binaries
         run: |
-          sudo apt-get install -y steamcmd
-          steamcmd +force_install_dir /tmp/gmod +login anonymous +app_update 4020 -beta x86-64 validate +quit || true
+          mkdir -p /tmp/steamcmd /tmp/gmod
+          curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - -C /tmp/steamcmd
+          /tmp/steamcmd/steamcmd.sh +force_install_dir /tmp/gmod +login anonymous +app_update 4020 -beta x86-64 validate +quit || true
           sudo cp /tmp/gmod/bin/linux64/*.so /usr/lib/
           sudo cp /usr/lib/tier0.so /usr/lib/libtier0.so || true
           sudo cp /usr/lib/vstdlib.so /usr/lib/libvstdlib.so || true
