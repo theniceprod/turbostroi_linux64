@@ -68,3 +68,11 @@ jobs:
           MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
           sed -i 's/linux32/linux64/g' "$MF"
           make -C "$(dirname "$MF")" config=release_x86_64 CXXFLAGS="$CXXFLAGS -fpermissive"
+
+      - name: Upload Artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: gmsv_turbostroi_linux64
+            path: |
+                **/*.so
+                **/*.dll
