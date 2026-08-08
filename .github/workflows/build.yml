@@ -39,21 +39,13 @@ jobs:
           for f in $(find external/garrysmod_common -name "processor_detect_linux.cpp"); do
             echo -e '#include "tier0/platform.h"\nbool CheckMMX() { return true; }\nbool CheckSSE() { return true; }\nbool CheckSSE2() { return true; }\nbool Check3DNow() { return false; }\nbool CheckCMOV() { return true; }' > "$f"
           done
-          
-      - name: Checkout gmcommon
-        uses: actions/checkout@v4
-        with:
-            repository: danielga/garrysmod_common
-            ref: master
-            path: gmcommon_tmp
-            lfs: true
 
-      - name: Copy Binaries
+      - name: Create Stub Binaries
         run: |
-            sudo cp gmcommon_tmp/bin/linux64/tier0.so /usr/lib/libtier0.so
-            sudo cp gmcommon_tmp/bin/linux64/vstdlib.so /usr/lib/libvstdlib.so
-            sudo cp gmcommon_tmp/bin/linux64/tier0.so /usr/lib/libtier0_srv.so
-            sudo cp gmcommon_tmp/bin/linux64/vstdlib.so /usr/lib/libvstdlib_srv.so
+            sudo gcc -shared -x c /dev/null -o /usr/lib/libtier0.so
+            sudo gcc -shared -x c /dev/null -o /usr/lib/libvstdlib.so
+            sudo gcc -shared -x c /dev/null -o /usr/lib/libtier0_srv.so
+            sudo gcc -shared -x c /dev/null -o /usr/lib/libvstdlib_srv.so
           
       - name: Fetch LFS and Setup Binaries
         run: |
