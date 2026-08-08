@@ -47,11 +47,12 @@ jobs:
             sudo gcc -shared -x c /dev/null -o /usr/lib/libtier0_srv.so
             sudo gcc -shared -x c /dev/null -o /usr/lib/libvstdlib_srv.so
             
-      - name: Rebuild LuaJIT with PIC
+      - name: Build LuaJIT with PIC
         run: |
-            make -C external/luajit/src BUILDMODE=static CFLAGS="-fPIC"
+            git clone --depth 1 https://github.com/LuaJIT/LuaJIT.git /tmp/luajit
+            make -C /tmp/luajit BUILDMODE=static CFLAGS="-fPIC"
             mkdir -p external/luajit/linux64
-            cp external/luajit/src/libluajit.a external/luajit/linux64/liblua51.a
+            cp /tmp/luajit/src/libluajit.a external/luajit/linux64/liblua51.a
         
       - name: Generate and Build
         run: |
