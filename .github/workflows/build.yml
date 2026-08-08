@@ -9,6 +9,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          lfs: true
 
       - name: Update submodules
         run: git submodule update --remote --recursive
@@ -55,10 +56,8 @@ jobs:
       - name: Setup x64 Binaries
         run: |
             mkdir -p external/bin64 && cd external/bin64
-            TIER0=$(find ../garrysmod_common -name "tier0*.so" | head -n 1)
-            VSTDLIB=$(find ../garrysmod_common -name "vstdlib*.so" | head -n 1)
-            [ -n "$TIER0" ] && cp "$TIER0" tier0.so || wget -q https://raw.githubusercontent.com/garrysmod-addons/garrysmod_common/main/bin/linux64/tier0.so -O tier0.so
-            [ -n "$VSTDLIB" ] && cp "$VSTDLIB" vstdlib.so || wget -q https://raw.githubusercontent.com/garrysmod-addons/garrysmod_common/main/bin/linux64/vstdlib.so -O vstdlib.so
+            find ../garrysmod_common -name "tier0*.so" -exec cp {} tier0.so \; -quit
+            find ../garrysmod_common -name "vstdlib*.so" -exec cp {} vstdlib.so \; -quit
             ln -sf tier0.so libtier0.so
             ln -sf vstdlib.so libvstdlib.so
             ln -sf tier0.so libtier0_srv.so
