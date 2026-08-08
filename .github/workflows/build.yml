@@ -53,12 +53,15 @@ jobs:
               cp "$VSTDLIB" "$TARGET_DIR/libvstdlib.so"
           fi
           
-      - name: Setup x64 Binaries
+      - name: Fetch LFS and Setup Binaries
         run: |
-            sudo curl -sL "https://github.com/garrysmod-addons/garrysmod_common/raw/main/bin/linux64/tier0.so" -o /usr/lib/libtier0.so
-            sudo curl -sL "https://github.com/garrysmod-addons/garrysmod_common/raw/main/bin/linux64/vstdlib.so" -o /usr/lib/libvstdlib.so
-            sudo cp /usr/lib/libtier0.so /usr/lib/libtier0_srv.so
-            sudo cp /usr/lib/libvstdlib.so /usr/lib/libvstdlib_srv.so
+            git submodule foreach git lfs pull
+            TIER0=$(find external/garrysmod_common -name "tier0.so" -not -type l | head -n 1)
+            VSTDLIB=$(find external/garrysmod_common -name "vstdlib.so" -not -type l | head -n 1)
+            sudo cp "$TIER0" /usr/lib/libtier0.so
+            sudo cp "$VSTDLIB" /usr/lib/libvstdlib.so
+            sudo cp "$TIER0" /usr/lib/libtier0_srv.so
+            sudo cp "$VSTDLIB" /usr/lib/libvstdlib_srv.so
           
       - name: Generate and Build
         run: |
