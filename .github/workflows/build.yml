@@ -65,11 +65,10 @@ jobs:
           
       - name: Generate and Build
         run: |
-          PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
-          MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
-          sed -i 's/linux32/linux64/g' "$MF"
-          export LIBRARY_PATH="$GITHUB_WORKSPACE/external/bin64:$LIBRARY_PATH"
-          make -C "$(dirname "$MF")" config=release_x86_64 CXXFLAGS="$CXXFLAGS -fpermissive"
+            PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
+            MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
+            sed -i 's/linux32/linux64/g' "$MF"
+            make -C "$(dirname "$MF")" config=release_x86_64 LDFLAGS="-L$GITHUB_WORKSPACE/external/bin64" CXXFLAGS="$CXXFLAGS -fpermissive"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
