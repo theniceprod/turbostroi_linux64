@@ -60,7 +60,7 @@ jobs:
         run: |
             PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
             MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
-            sed -i 's/linux32/linux64/g' "$MF"
+            sed -i 's/ALL_LDFLAGS +=/ALL_LDFLAGS += -Wl,--unresolved-symbols=ignore-all /g' "$MF"
             make -C "$(dirname "$MF")" config=release_x86_64 LDFLAGS="-L$GITHUB_WORKSPACE/external/bin64" CXXFLAGS="$CXXFLAGS -fpermissive"
 
       - name: Upload Artifact
