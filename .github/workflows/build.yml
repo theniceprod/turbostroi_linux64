@@ -44,6 +44,7 @@ jobs:
         uses: actions/checkout@v4
         with:
             repository: garrysmod-addons/garrysmod_common
+            ref: master
             path: gmcommon_tmp
             lfs: true
 
