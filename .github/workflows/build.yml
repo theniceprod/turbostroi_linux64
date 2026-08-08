@@ -49,9 +49,9 @@ jobs:
             
       - name: Rebuild LuaJIT with PIC
         run: |
-            make -C external/luajit clean || true
-            make -C external/luajit XCFLAGS="-fPIC"
-            cp external/luajit/src/liblua.a external/luajit/linux64/liblua51.a
+            make -C external/luajit/src BUILDMODE=static CFLAGS="-fPIC"
+            mkdir -p external/luajit/linux64
+            cp external/luajit/src/libluajit.a external/luajit/linux64/liblua51.a
         
       - name: Generate and Build
         run: |
