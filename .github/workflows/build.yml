@@ -47,7 +47,7 @@ jobs:
           mkdir -p /tmp/steamcmd /tmp/gmod
           curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - -C /tmp/steamcmd
           /tmp/steamcmd/steamcmd.sh +quit
-          /tmp/steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /tmp/gmod +login anonymous +app_update 4020 -beta x86-64 validate +quit
+          /tmp/steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /tmp/gmod +login anonymous +app_update 221880 -beta x86-64 validate +quit
         
           TIER0=$(find /tmp/gmod -name "*tier0*.so" | head -n 1)
           VSTDLIB=$(find /tmp/gmod -name "*vstdlib*.so" | head -n 1)
