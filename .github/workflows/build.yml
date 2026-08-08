@@ -43,10 +43,11 @@ jobs:
       - name: Create Stub Binaries
         run: |
           echo "void ConMsg(){}" > stub.c
-          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libtier0.so
-          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libvstdlib.so
-          gcc -shared -fPIC stub.c -o /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
+          gcc -shared -fPIC stub.c -o stub.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
             
       - name: Build LuaJIT with PIC
         run: |
