@@ -54,13 +54,12 @@ jobs:
           
       - name: Setup x64 Binaries
         run: |
-          mkdir -p external/bin64 && cd external/bin64
-          wget -q https://raw.githubusercontent.com/garrysmod-addons/garrysmod_common/master/bin/linux64/tier0.so -O tier0.so
-          wget -q https://raw.githubusercontent.com/garrysmod-addons/garrysmod_common/master/bin/linux64/vstdlib.so -O vstdlib.so
-          ln -sf tier0.so libtier0.so
-          ln -sf vstdlib.so libvstdlib.so
-          ln -sf tier0.so libtier0_srv.so
-          ln -sf vstdlib.so libvstdlib_srv.so
+        mkdir -p external/bin64 && cd external/bin64
+        cp ../garrysmod_common/bin/linux64/*.so .
+        ln -sf tier0.so libtier0.so
+        ln -sf vstdlib.so libvstdlib.so
+        ln -sf tier0.so libtier0_srv.so
+        ln -sf vstdlib.so libvstdlib_srv.so
           
       - name: Generate and Build
         run: |
