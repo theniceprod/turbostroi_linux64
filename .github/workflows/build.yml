@@ -56,12 +56,12 @@ jobs:
       - name: Fetch LFS and Setup Binaries
         run: |
             git submodule foreach git lfs pull
-            TIER0=$(find external/garrysmod_common -name "tier0.so" -not -type l | head -n 1)
-            VSTDLIB=$(find external/garrysmod_common -name "vstdlib.so" -not -type l | head -n 1)
+            TIER0=$(find external/garrysmod_common -iname "*tier0*.so" -type f | head -n 1)
+            VSTDLIB=$(find external/garrysmod_common -iname "*vstdlib*.so" -type f | head -n 1)
             sudo cp "$TIER0" /usr/lib/libtier0.so
             sudo cp "$VSTDLIB" /usr/lib/libvstdlib.so
-            sudo cp "$TIER0" /usr/lib/libtier0_srv.so
-            sudo cp "$VSTDLIB" /usr/lib/libvstdlib_srv.so
+            sudo cp /usr/lib/libtier0.so /usr/lib/libtier0_srv.so
+            sudo cp /usr/lib/libvstdlib.so /usr/lib/libvstdlib_srv.so
           
       - name: Generate and Build
         run: |
