@@ -46,7 +46,13 @@ jobs:
             sudo gcc -shared -x c /dev/null -o /usr/lib/libvstdlib.so
             sudo gcc -shared -x c /dev/null -o /usr/lib/libtier0_srv.so
             sudo gcc -shared -x c /dev/null -o /usr/lib/libvstdlib_srv.so
-          
+            
+      - name: Rebuild LuaJIT with PIC
+        run: |
+            make -C external/luajit clean || true
+            make -C external/luajit XCFLAGS="-fPIC"
+            cp external/luajit/src/liblua.a external/luajit/linux64/liblua51.a
+        
       - name: Generate and Build
         run: |
             PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
