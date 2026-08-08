@@ -48,10 +48,12 @@ jobs:
           curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - -C /tmp/steamcmd
           /tmp/steamcmd/steamcmd.sh +quit
           /tmp/steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /tmp/gmod +login anonymous +app_update 4020 -beta x86-64 validate +quit
-          sudo cp /tmp/gmod/bin/linux64/tier0.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-          sudo cp /tmp/gmod/bin/linux64/vstdlib.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
-          sudo cp /tmp/gmod/bin/linux64/tier0.so /usr/lib/x86_64-linux-gnu/libtier0.so
-          sudo cp /tmp/gmod/bin/linux64/vstdlib.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
+          sudo find /tmp/gmod -name "*.so" -exec cp {} /usr/lib/x86_64-linux-gnu/ \;
+          cd /usr/lib/x86_64-linux-gnu/
+          sudo cp $(ls *tier0*.so | head -n 1) libtier0.so
+          sudo cp $(ls *tier0*.so | head -n 1) libtier0_srv.so
+          sudo cp $(ls *vstdlib*.so | head -n 1) libvstdlib.so
+          sudo cp $(ls *vstdlib*.so | head -n 1) libvstdlib_srv.so
             
       - name: Build LuaJIT with PIC
         run: |
