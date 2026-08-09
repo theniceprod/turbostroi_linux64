@@ -42,12 +42,12 @@ jobs:
 
       - name: Create Stub Binaries
         run: |
-          echo "void ConMsg(){}" > stub.c
-          gcc -shared -fPIC stub.c -o stub.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
+            echo 'extern "C" { void ConMsg(){} void ConColorMsg(){} void Warning(){} void Error(){} void Plat_FloatTime(){} void Plat_localtime(){} }' > stub.cpp
+            g++ -shared -fPIC -Wl,--unresolved-symbols=ignore-all stub.cpp -o stub.so
+            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0.so
+            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
+            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
+            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
             
       - name: Build LuaJIT with PIC
         run: |
@@ -61,7 +61,7 @@ jobs:
             PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
             MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
             sed -i 's|linux32|/usr/lib/x86_64-linux-gnu|g' "$MF"
-            sed -i 's/ALL_LDFLAGS +=/ALL_LDFLAGS += -Wl,--unresolved-symbols=ignore-all /g' "$MF"
+            sed -i 's/LINKCMD =/LINKCMD = $(CXX) -Wl,--unresolved-symbols=ignore-all/g' "$MF"
             make -C "$(dirname "$MF")" config=release_x86_64 LDFLAGS="-L$GITHUB_WORKSPACE/external/bin64" CXXFLAGS="$CXXFLAGS -fpermissive"
 
       - name: Upload Artifact
