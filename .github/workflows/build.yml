@@ -1,10 +1,16 @@
 name: Build
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -14,60 +20,51 @@ jobs:
       - name: Update submodules
         run: git submodule update --remote --recursive
 
-      - name: Install Boost
-        run: sudo apt-get update && sudo apt-get install -y libboost-thread-dev libboost-chrono-dev libboost-system-dev
-
-      - name: Build LuaJIT
+      - name: Install Dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-thread-dev libboost-chrono-dev libboost-system-dev
+
+      - name: Build LuaJIT x64
+        run: |
+          git clone --depth 1 https://github.com/LuaJIT/LuaJIT.git /tmp/luajit
+          make -C /tmp/luajit BUILDMODE=static CFLAGS="-fPIC"
           mkdir -p external/luajit/linux64
-          git clone https://github.com/LuaJIT/LuaJIT.git temp_luajit
-          cd temp_luajit && make -j$(nproc)
-          cp src/libluajit.a ../external/luajit/linux64/liblua51.a
+          cp /tmp/luajit/src/libluajit.a external/luajit/linux64/liblua51.a
 
       - name: Install Premake
         run: |
           wget https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
           tar -xzf premake-5.0.0-beta2-linux.tar.gz
-          
-      - name: Patch garrysmod_common for Linux x86_64
+
+      - name: Patch garrysmod_common
         run: |
           find external/garrysmod_common -name "bitbuf.h" -exec sed -i 's/sizeof(long) == sizeof(float)/sizeof(int) == sizeof(float)/g' {} +
           find external/garrysmod_common -name "threadtools.h" -exec sed -i 's/sizeof(T) == sizeof(long)/sizeof(T) == sizeof(int)/g' {} +
-
-      - name: Fix processor_detect_linux for x86_64
-        run: |
           for f in $(find external/garrysmod_common -name "processor_detect_linux.cpp"); do
             echo -e '#include "tier0/platform.h"\nbool CheckMMX() { return true; }\nbool CheckSSE() { return true; }\nbool CheckSSE2() { return true; }\nbool Check3DNow() { return false; }\nbool CheckCMOV() { return true; }' > "$f"
           done
 
-      - name: Create Stub Binaries
+      - name: Create Stub Libraries
         run: |
-            echo 'extern "C" { void ConMsg(){} void ConColorMsg(){} void Warning(){} void Error(){} void Plat_FloatTime(){} void Plat_localtime(){} }' > stub.cpp
-            g++ -shared -fPIC -Wl,--unresolved-symbols=ignore-all stub.cpp -o stub.so
-            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0.so
-            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
-            sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
-            
-      - name: Build LuaJIT with PIC
-        run: |
-            git clone --depth 1 https://github.com/LuaJIT/LuaJIT.git /tmp/luajit
-            make -C /tmp/luajit BUILDMODE=static CFLAGS="-fPIC"
-            mkdir -p external/luajit/linux64
-            cp /tmp/luajit/src/libluajit.a external/luajit/linux64/liblua51.a
-        
+          echo "" | gcc -x c - -shared -o stub.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
+          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
+
       - name: Generate and Build
         run: |
-            PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
-            MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
-            sed -i 's|linux32|/usr/lib/x86_64-linux-gnu|g' "$MF"
-            sed -i 's/LINKCMD =/LINKCMD = $(CXX) -Wl,--unresolved-symbols=ignore-all/g' "$MF"
-            make -C "$(dirname "$MF")" config=release_x86_64 LDFLAGS="-L$GITHUB_WORKSPACE/external/bin64" CXXFLAGS="$CXXFLAGS -fpermissive"
+          PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
+          MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
+          sed -i 's|/linux32|/linux64|g' "$MF"
+          sed -i 's/ALL_LDFLAGS +=/ALL_LDFLAGS += -Wl,--unresolved-symbols=ignore-all /g' "$MF"
+          make -C "$(dirname "$MF")" config=release_x86_64 CXXFLAGS="$CXXFLAGS -fpermissive"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-            name: gmsv_turbostroi_linux64
-            path: |
-                **/*.so
-                **/*.dll
+          name: gmsv_turbostroi_linux64
+          path: |
+            **/*.so
+            **/*.dll
