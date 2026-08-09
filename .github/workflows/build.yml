@@ -59,6 +59,7 @@ jobs:
           MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
           sed -i 's|/linux32|/linux64|g' "$MF"
           sed -i 's/ALL_LDFLAGS +=/ALL_LDFLAGS += -Wl,--unresolved-symbols=ignore-all /g' "$MF"
+          sed -i 's/-Wl,-z,defs//g; s/-Wl,--no-undefined//g' "$MF"
           make -C "$(dirname "$MF")" config=release_x86_64 CXXFLAGS="$CXXFLAGS -fpermissive"
 
       - name: Upload Artifact
