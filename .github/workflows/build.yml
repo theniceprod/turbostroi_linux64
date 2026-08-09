@@ -66,6 +66,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gmsv_turbostroi_linux64
-          path: |
-            **/*.so
-            **/*.dll
+          path: projects/linux/gmake/x86_64/Release/*.dll
