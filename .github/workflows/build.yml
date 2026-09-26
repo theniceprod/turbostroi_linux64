@@ -68,4 +68,4 @@ jobs:
           name: gmsv_turbostroi_linux64
           path: |
             **/*.dll
-            **/*.so
+            **/*.so 
