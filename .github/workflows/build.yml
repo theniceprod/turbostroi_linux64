@@ -15,6 +15,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Clone garrysmod_common
+      run: |
+        git clone --recursive https://github.com ../garrysmod_common
+      shell: bash
+
     - name: Setup Premake
       uses: abel0b/setup-premake@v2
       with:
@@ -25,10 +30,13 @@ jobs:
 
     - name: Generate Visual Studio Files
       run: premake5 vs2022
+      env:
+        GARRYSMOD_COMMON: ../garrysmod_common
 
     - name: Build Solution (Release x64)
       run: msbuild *.sln /p:Configuration=Release /p:Platform=x64
-      # Если игре нужна 32-битная версия, замените Platform=x64 на Platform=Win32 или x86 в зависимости от настроек premake
+      # Если сборка упадет на этом шаге, возможно проекту нужна 32-битная платформа. 
+      # В таком случае x64 ниже нужно будет поменять на Win32 или x86.
 
     - name: Upload DLL Artifact
       uses: actions/upload-artifact@v4
