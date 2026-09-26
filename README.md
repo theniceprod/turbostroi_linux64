@@ -28,3 +28,4 @@ To work correctly, you need to unpack and change dll names in metrostroi files:
 
 `lua\metrostroi\sv_turbostroi_v2.lua` (строка 224):
 `"gmsv_turbostroi_win32"` -> `"gmsv_turbostroi_win64"`
+  
