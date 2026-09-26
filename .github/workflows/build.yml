@@ -1,71 +1,38 @@
-name: Build
+name: Build Windows DLL
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          lfs: true
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
-      - name: Update submodules
-        run: git submodule update --remote --recursive
+    - name: Setup Premake
+      uses: abel0b/setup-premake@v2
+      with:
+        version: '5.0.0-beta2'
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libboost-thread-dev libboost-chrono-dev libboost-system-dev
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
-      - name: Build LuaJIT x64
-        run: |
-          git clone --depth 1 https://github.com/LuaJIT/LuaJIT.git /tmp/luajit
-          make -C /tmp/luajit BUILDMODE=static CFLAGS="-fPIC"
-          mkdir -p external/luajit/linux64
-          cp /tmp/luajit/src/libluajit.a external/luajit/linux64/liblua51.a
+    - name: Generate Visual Studio Files
+      run: premake5 vs2022
 
-      - name: Install Premake
-        run: |
-          wget https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
-          tar -xzf premake-5.0.0-beta2-linux.tar.gz
+    - name: Build Solution (Release x64)
+      run: msbuild *.sln /p:Configuration=Release /p:Platform=x64
+      # Если игре нужна 32-битная версия, замените Platform=x64 на Platform=Win32 или x86 в зависимости от настроек premake
 
-      - name: Patch garrysmod_common
-        run: |
-          find external/garrysmod_common -name "bitbuf.h" -exec sed -i 's/sizeof(long) == sizeof(float)/sizeof(int) == sizeof(float)/g' {} +
-          find external/garrysmod_common -name "threadtools.h" -exec sed -i 's/sizeof(T) == sizeof(long)/sizeof(T) == sizeof(int)/g' {} +
-          for f in $(find external/garrysmod_common -name "processor_detect_linux.cpp"); do
-            echo -e '#include "tier0/platform.h"\nbool CheckMMX() { return true; }\nbool CheckSSE() { return true; }\nbool CheckSSE2() { return true; }\nbool Check3DNow() { return false; }\nbool CheckCMOV() { return true; }' > "$f"
-          done
-
-      - name: Create Stub Libraries
-        run: |
-          echo "" | gcc -x c - -shared -o stub.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libtier0_srv.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib.so
-          sudo cp stub.so /usr/lib/x86_64-linux-gnu/libvstdlib_srv.so
-
-      - name: Generate and Build
-        run: |
-          PROJECT_GENERATOR_VERSION=3 ./premake5 gmake --gmcommon=external/garrysmod_common
-          MF=$(find . -name "gmsv_turbostroi.make" | head -n 1)
-          sed -i 's|/linux32|/linux64|g' "$MF"
-          sed -i 's/ALL_LDFLAGS +=/ALL_LDFLAGS += -Wl,--unresolved-symbols=ignore-all /g' "$MF"
-          sed -i 's/-Wl,-z,defs//g; s/-Wl,--no-undefined//g' "$MF"
-          make -C "$(dirname "$MF")" config=release_x86_64 CXXFLAGS="$CXXFLAGS -fpermissive"
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gmsv_turbostroi_linux64
-          path: |
-            **/*.dll
-            **/*.so
+    - name: Upload DLL Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gmsv_turbostroi_dll
+        path: |
+          **/*.dll
